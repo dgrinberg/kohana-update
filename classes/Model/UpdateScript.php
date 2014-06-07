@@ -20,6 +20,8 @@ class Model_UpdateScript {
     public $type;
     public $version;
     public $ext;
+    
+    public $scripts;
 
     public function __construct($filename)
     {
@@ -32,6 +34,8 @@ class Model_UpdateScript {
         $this->type = $fileparts[0];
         $this->version = $fileparts[1].'.'.$fileparts[2].'.'.$fileparts[3];
         $this->ext = $path_parts['extension'];
+        
+        $this->scripts = $this->split_file();
     }
     
     public function is_update()
@@ -53,18 +57,16 @@ class Model_UpdateScript {
         return false;
     }
     
-    public function run()
-    {
-        $this->run_file();
-    }
-    
-    private function run_file()
+    private function split_file()
     {
         $contents = Filesystem::read_file($this->filepath);
         $fileparts = preg_split("/[;]+/", $contents);
-        foreach($fileparts as $part)
-        {
-            DB::query(NULL, $part)->execute();
-        }
+        
+        return array_filter($fileparts, array($this, 'is_script'));
+    }
+    
+    private function is_script($script)
+    {
+        return (strlen(trim($script)) > 0);
     }
 }
