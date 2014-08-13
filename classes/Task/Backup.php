@@ -20,8 +20,12 @@ class Task_Backup extends Minion_Task
     protected function _execute(array $params)
     {
         $this->_config = Kohana::$config->load('update')->get('default');
-        $db_config = Kohana::$config->load('database')->get('default');
-
+        
+        if (trim($params['env']) == '') {
+            $db_config = Kohana::$config->load('database')->get('default');
+        } else {
+            $db_config = Kohana::$config->load('database')->get($params['env']);
+        }
         $backup_file = $this->backup_database(
                 $db_config['connection']['hostname'],
                 $db_config['connection']['username'],
