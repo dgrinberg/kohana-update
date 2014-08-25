@@ -23,6 +23,14 @@ class Task_Backup extends Minion_Task
     }
     
     /**
+    * A set of config options that this task accepts
+    * @var array
+    */
+    protected $_options = array(
+        'env'    => Kohana::DEVELOPMENT,
+    );
+    
+    /**
      * Back ups the database (MySQL)
      *
      * @return null
