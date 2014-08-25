@@ -12,6 +12,10 @@ class Task_Backup extends Minion_Task
 {
     private $_config;
     
+    /**
+    * A set of config options that this task accepts
+    * @var array
+    */
     protected $_options = array(
         'env' => NULL
     );
@@ -21,14 +25,6 @@ class Task_Backup extends Minion_Task
         return parent::build_validation($validation)
                 ->rule('env', 'not_empty');
     }
-    
-    /**
-    * A set of config options that this task accepts
-    * @var array
-    */
-    protected $_options = array(
-        'env'    => Kohana::DEVELOPMENT,
-    );
     
     /**
      * Back ups the database (MySQL)
