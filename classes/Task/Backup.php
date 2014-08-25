@@ -52,7 +52,8 @@ class Task_Backup extends Minion_Task
     private function backup_database($db_host, $db_user, $db_pass, $db_name)
     {
         $backupfile = $this->_config['backup']['backup_path'] . $db_name . '-' . date("YmdHis") . '.sql.gz';
-        system("mysqldump -h $db_host -u $db_user --password=$db_pass $db_name | gzip > $backupfile");
+        echo("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
+        system("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
         
         return $backupfile;
     }
@@ -62,7 +63,7 @@ class Task_Backup extends Minion_Task
         $email = Email::factory(
             $this->_config['backup']['email_subject'],
             $this->_config['backup']['email_body'])
-                ->to($this->_config['backup']['email_to'])
+                ->to(explode(',', $this->_config['backup']['email_to']))
                 ->from($this->_config['backup']['email_from']);
         $email->attach_file($backup_file);
         $email->send();
