@@ -12,6 +12,16 @@ class Task_Backup extends Minion_Task
 {
     private $_config;
     
+    protected $_options = array(
+        'env' => NULL
+    );
+            
+    public function build_validation(Validation $validation)
+    {
+        return parent::build_validation($validation)
+                ->rule('env', 'not_empty');
+    }
+    
     /**
      * Back ups the database (MySQL)
      *
@@ -19,8 +29,10 @@ class Task_Backup extends Minion_Task
      */
     protected function _execute(array $params)
     {
-        $this->_config = Kohana::$config->load('update')->get('default');
-        $db_config = Kohana::$config->load('database')->get('default');
+        $env = $params['env'];
+        
+        $this->_config = Kohana::$config->load('update')->get($env);
+        $db_config = Kohana::$config->load('database')->get($env);
 
         $backup_file = $this->backup_database(
                 $db_config['connection']['hostname'],
@@ -28,7 +40,7 @@ class Task_Backup extends Minion_Task
                 $db_config['connection']['password'],
                 $db_config['connection']['database']);
         
-        if ($this->_config['send_email'] == true) {
+        if ($this->_config['backup']['send_email'] == true) {
             $this->send_email($backup_file);
         }
     }
