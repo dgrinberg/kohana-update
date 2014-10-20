@@ -17,8 +17,14 @@ class Task_Backup extends Minion_Task
     * @var array
     */
     protected $_options = array(
-        'env'    => Kohana::DEVELOPMENT,
+        'env' => NULL
     );
+            
+    public function build_validation(Validation $validation)
+    {
+        return parent::build_validation($validation)
+                ->rule('env', 'not_empty');
+    }
     
     /**
      * Back ups the database (MySQL)
@@ -27,13 +33,11 @@ class Task_Backup extends Minion_Task
      */
     protected function _execute(array $params)
     {
-        $this->_config = Kohana::$config->load('update')->get('default');
+        $env = $params['env'];
         
-        if (trim($params['env']) == '') {
-            $db_config = Kohana::$config->load('database')->get('default');
-        } else {
-            $db_config = Kohana::$config->load('database')->get($params['env']);
-        }
+        $this->_config = Kohana::$config->load('update')->get($env);
+        $db_config = Kohana::$config->load('database')->get($env);
+
         $backup_file = $this->backup_database(
                 $db_config['connection']['hostname'],
                 $db_config['connection']['username'],
@@ -48,7 +52,8 @@ class Task_Backup extends Minion_Task
     private function backup_database($db_host, $db_user, $db_pass, $db_name)
     {
         $backupfile = $this->_config['backup']['backup_path'] . $db_name . '-' . date("YmdHis") . '.sql.gz';
-        system("mysqldump -h $db_host -u $db_user --password=$db_pass $db_name | gzip > $backupfile");
+        echo("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
+        system("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
         
         return $backupfile;
     }
@@ -58,7 +63,7 @@ class Task_Backup extends Minion_Task
         $email = Email::factory(
             $this->_config['backup']['email_subject'],
             $this->_config['backup']['email_body'])
-                ->to($this->_config['backup']['email_to'])
+                ->to(explode(',', $this->_config['backup']['email_to']))
                 ->from($this->_config['backup']['email_from']);
         $email->attach_file($backup_file);
         $email->send();
