@@ -40,7 +40,7 @@ class Task_Backup extends Minion_Task
                 $db_config['connection']['password'],
                 $db_config['connection']['database']);
         
-        if ($this->_config['send_email'] == true) {
+        if ($this->_config['backup']['send_email'] == true) {
             $this->send_email($backup_file);
         }
     }
