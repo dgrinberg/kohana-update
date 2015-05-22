@@ -88,7 +88,7 @@ class Controller_Update extends Controller {
             ->values(array(
                 $file->version,
                 $file->filename,
-                null
+                date('Y M d H:i:s')
             ))
             ->execute();
         
