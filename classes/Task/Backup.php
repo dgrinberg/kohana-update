@@ -39,9 +39,7 @@ class Task_Backup extends Minion_Task
         $db_config = Kohana::$config->load('database')->get($env);
 
         $backup_file = $this->backup_database(
-                $db_config['connection']['hostname'],
-                $db_config['connection']['username'],
-                $db_config['connection']['password'],
+                $db_config['connection']['conf'],
                 $db_config['connection']['database']);
         
         if ($this->_config['backup']['send_email'] == true) {
@@ -49,11 +47,11 @@ class Task_Backup extends Minion_Task
         }
     }
     
-    private function backup_database($db_host, $db_user, $db_pass, $db_name)
+    private function backup_database($db_conf, $db_name)
     {
         $backupfile = $this->_config['backup']['backup_path'] . $db_name . '-' . date("YmdHis") . '.sql.gz';
-        echo("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
-        system("mysqldump -h $db_host -u $db_user --password='$db_pass' $db_name | gzip > $backupfile");
+        echo("mysqldump --defaults-extra-file=$db_conf $db_name | gzip > $backupfile");
+        system("mysqldump --defaults-extra-file=$db_conf $db_name | gzip > $backupfile");
         
         return $backupfile;
     }
